@@ -1,0 +1,7 @@
+{
+  "enabledMcpjsonServers": [
+    "laravel-boost",
+    "claude"
+  ],
+  "enableAllProjectMcpServers": true
+}
