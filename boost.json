@@ -1,13 +1,18 @@
 {
     "agents": [
-        "claude_code"
+        "cursor",
+        "copilot",
+        "opencode",
+        "codex"
     ],
+    "guidelines": true,
     "herd_mcp": false,
     "mcp": true,
     "sail": false,
     "skills": [
-        "mcp-development",
         "pest-testing",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "backend-api",
+        "frontend"
     ]
 }

@@ -1,16 +1,14 @@
-# Bug Fixes TODO
+# TODO
 
-## Bugs Fixed:
+## Fix "There are no commands defined in the 'boost' namespace"
 
-- [x] 1. Fix UserStore.php - Email unique validation for PATCH (use `$this->route('user')` instead of `$this->user`)
-- [x] 2. Fix UserStore.php - Make password nullable for PATCH requests
-- [x] 3. Fix UserController.php - `update` method to allow optional password
-- [x] 4. Fix UserController.php - `show` method (removed delete logic, restored proper show functionality)
-- [x] 5. Fix UserController.php - `destroy` method (added proper delete logic)
-- [x] 6. Fix index.blade.php - Delete link route (use `user.destroy` instead of `user.show`)
-- [x] 7. Fix routes/web.php - Added missing logout route
-- [x] 8. Added collapsible/expanded sidebar functionality
+- [x] Fix invalid JSON in `composer.json` (remove embedded `php artisan boost:install` text)
+- [x] Create `.env` from `.env.example` and set `APP_ENV=local` (root cause: missing `.env` caused production mode, blocking boost commands)
+- [x] Run `php artisan key:generate`
+- [x] Run `php artisan boost:install` to register boost commands ✅ (interactive prompt now running)
 
-## Summary:
-All bugs have been fixed and the collapsible sidebar feature has been added.
+## Create `frontend` and `backend-api` Skills
 
+- [x] Create `.ai/skills/frontend/SKILL.md`
+- [x] Create `.ai/skills/backend-api/SKILL.md`
+- [x] Run `php artisan boost:update` to propagate skills to agent directories
