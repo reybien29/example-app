@@ -10,7 +10,7 @@ Route::get('/', function () {
 
 Route::resource('user', UserController::class);
 
-route::get('my_search', [UserController::class, 'search'])->name('user.search');
+Route::get('my_search', [UserController::class, 'search'])->name('user.search');
 
 Route::get('/users', [UserController::class, 'index']);
 
