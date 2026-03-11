@@ -65,14 +65,7 @@ RUN mkdir -p storage/framework/{sessions,views,cache} \
 # ── Nginx configuration ───────────────────────────────────────────────────────
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# ── PHP-FPM: listen on unix socket so Nginx can reach it ─────────────────────
-# Match both 'listen = 9000' and 'listen = 127.0.0.1:9000'
-RUN sed -i 's|listen = .*$|listen = /var/run/php-fpm.sock|g' \
-    /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's|;listen.owner = www-data|listen.owner = www-data|g' \
-    /usr/local/etc/php-fpm.d/www.conf \
-    && sed -i 's|;listen.group = www-data|listen.group = www-data|g' \
-    /usr/local/etc/php-fpm.d/www.conf
+
 
 # ── PHP opcache tuning ────────────────────────────────────────────────────────
 RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
