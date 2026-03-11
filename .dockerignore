@@ -1,0 +1,62 @@
+# Version control
+.git
+.gitattributes
+.gitignore
+
+# IDE and editor files
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.cursor
+
+# AI/Agent tooling
+.agents
+.ai
+.blackboxcli
+.claude
+.codex
+.gemini
+AGENTS.md
+GEMINI.md
+TODO.md
+boost.json
+opencode.json
+.mcp.json
+
+# Node modules (rebuilt in Docker)
+node_modules
+
+# Vendor (rebuilt in Docker)
+vendor
+
+# Testing
+tests
+phpunit.xml
+.phpunit.cache
+.phpunit.result.cache
+
+# Local environment
+.env
+.env.backup
+.env.production
+.env.example
+
+# Development
+*.log
+.DS_Store
+Homestead.json
+Homestead.yaml
+Thumbs.db
+
+# Storage (ephemeral)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/framework/.gitkeep
+
+# Frontend source (not needed in prod image — build output is copied)
+frontend
+response.html
