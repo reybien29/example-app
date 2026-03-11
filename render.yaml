@@ -35,7 +35,7 @@ services:
         value: false
 
       - key: APP_KEY
-        generateValue: true   # Render auto-generates a secure 32-char key
+        sync: false   # Must be set manually: base64:... format required by Laravel
 
       - key: APP_URL
         value: https://example-app-hey3.onrender.com
