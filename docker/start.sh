@@ -9,20 +9,27 @@ chown www-data:www-data /var/run
 # ── Run Laravel startup tasks ─────────────────────────────────────────────────
 cd /var/www/html
 
-echo ">>> Caching config..."
-php artisan config:cache
+echo ">>> Validating view paths..."
+if [ ! -d "/var/www/html/resources/views" ]; then
+    echo "ERROR: resources/views not found!"
+    exit 1
+fi
 
-echo ">>> Caching routes..."
-php artisan route:cache
+echo ">>> Clearing caches..."
+php artisan optimize:clear || echo ">>> Already clear."
 
-echo ">>> Caching views..."
-php artisan view:cache
+echo ">>> Caching everything..."
+# Combine config, route, and view caching
+php artisan optimize || {
+    echo "ERROR: Optimize failed. Falling back to individual steps..."
+    php artisan config:cache || exit 1
+    php artisan route:cache || exit 1
+}
 
 echo ">>> Running migrations..."
 php artisan migrate --force
 
-echo ">>> Optimising application..."
-php artisan optimize
+echo ">>> Ready to start."
 
 # ── Start PHP-FPM in background, then Nginx in foreground ────────────────────
 echo ">>> Starting PHP-FPM..."

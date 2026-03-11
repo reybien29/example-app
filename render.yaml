@@ -38,7 +38,7 @@ services:
         generateValue: true   # Render auto-generates a secure 32-char key
 
       - key: APP_URL
-        value: https://example-app.onrender.com
+        value: https://example-app-hey3.onrender.com
 
       - key: PORT
         value: 8080
