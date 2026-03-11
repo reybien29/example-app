@@ -35,7 +35,7 @@ services:
         value: false
 
       - key: LARAVEL_KEY
-        value: base64:7U5pDLvPzJK2Y13ra1FdvqrNNgk+3ixABuwx1sys658E=
+        value: base64:l5ayUZRCzEdPajkNIF0BWAuLCdXNfaHSWcAbmvWBdHo=
 
       - key: APP_URL
         value: https://example-app-hey3.onrender.com

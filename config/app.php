@@ -97,7 +97,7 @@ return [
 
     'cipher' => 'AES-256-CBC',
 
-    'key' => 'base64:7U5pDLvPzJK2Y13ra1FdvqrNNgk+3ixABuwx1sys658E=',
+    'key' => env('LARAVEL_KEY', env('APP_KEY', 'base64:l5ayUZRCzEdPajkNIF0BWAuLCdXNfaHSWcAbmvWBdHo=')),
 
     'previous_keys' => [
         ...array_filter(
