@@ -85,6 +85,6 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
 COPY docker/start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-EXPOSE 8080
+EXPOSE 10000
 
 CMD ["/usr/local/bin/start.sh"]
