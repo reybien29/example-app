@@ -1,62 +1,47 @@
-# Version control
+# ── Version control ───────────────────────────────────────────────────────────
 .git
 .gitattributes
 .gitignore
+.github
 
-# IDE and editor files
-.idea
-.vscode
-.fleet
-.nova
-.zed
-.cursor
+# ── Local environment ─────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
 
-# AI/Agent tooling
-.agents
-.ai
-.blackboxcli
-.claude
-.codex
-.gemini
-AGENTS.md
-GEMINI.md
-TODO.md
-boost.json
-opencode.json
-.mcp.json
-
-# Node modules (rebuilt in Docker)
+# ── Node / Frontend (built in the node-build stage) ──────────────────────────
 node_modules
+frontend/node_modules
 
-# Vendor (rebuilt in Docker)
+# ── PHP vendor (installed in the Docker build) ────────────────────────────────
 vendor
 
-# Testing
+# ── Local build artifacts ─────────────────────────────────────────────────────
+public/build
+public/hot
+public/storage
+
+# ── Laravel runtime ───────────────────────────────────────────────────────────
+storage/framework/cache
+storage/framework/sessions
+storage/framework/views
+storage/logs
+bootstrap/cache/*.php
+
+# ── Test / Dev tooling ────────────────────────────────────────────────────────
 tests
 phpunit.xml
 .phpunit.cache
 .phpunit.result.cache
+TODO.md
+README.md
+AGENTS.md
+GEMINI.md
 
-# Local environment
-.env
-.env.backup
-.env.production
-.env.example
-
-# Development
-*.log
-.DS_Store
-Homestead.json
-Homestead.yaml
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.idea
+.vscode
+.cursor
+.editorconfig
+*.DS_Store
 Thumbs.db
-
-# Storage (ephemeral)
-storage/logs/*
-storage/framework/cache/*
-storage/framework/sessions/*
-storage/framework/views/*
-!storage/framework/.gitkeep
-
-# Frontend source (not needed in prod image — build output is copied)
-frontend
-response.html

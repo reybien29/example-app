@@ -1,0 +1,78 @@
+# render.yaml — Infrastructure-as-Code for reybien29/example-app
+# Render docs: https://docs.render.com/blueprint-spec
+#
+# This blueprint provisions:
+#   - One Web Service (Docker, free tier)
+#   - One PostgreSQL database (free tier)
+#
+# No relation to the Blog or Newportfolio services on Railway.
+# All services here are isolated to Render only.
+
+databases:
+  - name: example-app-db
+    databaseName: example_app
+    user: example_app_user
+    plan: free        # Free tier: expires 90 days — rotate manually when needed
+    region: oregon    # Change to the region closest to your users if needed
+
+services:
+  - type: web
+    name: example-app
+    runtime: docker
+    plan: free        # Free tier: spins down after 15 min; 30-60 s cold start
+    region: oregon    # Must match the database region
+    branch: main      # Change to your default branch if different
+    healthCheckPath: /up
+    envVars:
+      # ── Application ─────────────────────────────────────────────────────────
+      - key: APP_NAME
+        value: ExampleApp
+
+      - key: APP_ENV
+        value: production
+
+      - key: APP_DEBUG
+        value: false
+
+      - key: APP_KEY
+        generateValue: true   # Render auto-generates a secure 32-char key
+
+      - key: APP_URL
+        value: https://example-app.onrender.com   # ← Update after first deploy
+
+      # ── Database (linked to the PostgreSQL instance above) ─────────────────
+      - key: DB_CONNECTION
+        value: pgsql
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: example-app-db
+          property: connectionString   # Full PostgreSQL URL (pgsql://user:pass@host:5432/db)
+
+      # ── Session & Cache (file-based; no Redis needed on free tier) ──────────
+      - key: SESSION_DRIVER
+        value: file
+
+      - key: CACHE_STORE
+        value: file
+
+      - key: QUEUE_CONNECTION
+        value: sync
+
+      # ── Logging ─────────────────────────────────────────────────────────────
+      - key: LOG_CHANNEL
+        value: stderr
+
+      - key: LOG_LEVEL
+        value: error
+
+      # ── Mail (disabled by default — replace with real values when needed) ───
+      - key: MAIL_MAILER
+        value: log
+
+      # ── Internal API / External Integration (set real values in Render UI) ──
+      - key: INTERNAL_API_TOKEN
+        sync: false   # Render will prompt you to enter this in the dashboard
+
+      - key: EXTERNAL_INTEGRATION_KEYS
+        sync: false

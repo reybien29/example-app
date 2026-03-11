@@ -1,114 +1,82 @@
-# ============================================================
-# Stage 1: Build frontend assets (Node.js + Vite 7)
-# ============================================================
-FROM node:22-alpine AS frontend-builder
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 1 – Node: compile Vite / Tailwind CSS assets
+# ──────────────────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS node-build
 
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
 COPY vite.config.js ./
-COPY resources/ ./resources/
+COPY resources/ resources/
 
 RUN npm run build
 
-# ============================================================
-# Stage 2: Install PHP dependencies (Composer)
-# ============================================================
-FROM composer:2 AS composer-builder
+# ──────────────────────────────────────────────────────────────────────────────
+# Stage 2 – PHP-FPM + Nginx: serve the Laravel application
+# ──────────────────────────────────────────────────────────────────────────────
+FROM php:8.4-fpm-alpine AS app
 
-WORKDIR /app
+LABEL maintainer="reybien29"
 
-COPY composer.json composer.lock ./
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-interaction \
-    --prefer-dist \
-    --optimize-autoloader
-
-COPY . .
-RUN composer dump-autoload --optimize --no-dev
-
-# ============================================================
-# Stage 3: Production runtime
-# ============================================================
-FROM php:8.4-fpm-alpine AS runtime
-
-# Install system dependencies
+# ── System dependencies ───────────────────────────────────────────────────────
 RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    libpq-dev \
-    icu-dev \
-    libzip-dev \
-    oniguruma-dev \
-    curl
+        nginx \
+        curl \
+        libpq-dev \
+        libzip-dev \
+        oniguruma-dev \
+        nodejs \
+        npm \
+    && docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        pgsql \
+        zip \
+        mbstring \
+        opcache \
+    && rm -rf /var/cache/apk/*
 
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo_pgsql \
-    pgsql \
-    intl \
-    zip \
-    mbstring \
-    bcmath \
-    opcache \
-    pcntl
+# ── Composer ──────────────────────────────────────────────────────────────────
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Configure OPcache for production
-RUN { \
-    echo 'opcache.memory_consumption=128'; \
-    echo 'opcache.interned_strings_buffer=8'; \
-    echo 'opcache.max_accelerated_files=10000'; \
-    echo 'opcache.revalidate_freq=0'; \
-    echo 'opcache.validate_timestamps=0'; \
-    echo 'opcache.enable_cli=1'; \
-    echo 'opcache.jit=1255'; \
-    echo 'opcache.jit_buffer_size=100M'; \
-} > /usr/local/etc/php/conf.d/opcache.ini
-
-# Configure PHP for production
-RUN { \
-    echo 'upload_max_filesize=64M'; \
-    echo 'post_max_size=64M'; \
-    echo 'memory_limit=256M'; \
-    echo 'max_execution_time=60'; \
-    echo 'expose_php=Off'; \
-} > /usr/local/etc/php/conf.d/production.ini
-
+# ── Application code ──────────────────────────────────────────────────────────
 WORKDIR /var/www/html
 
-# Copy application from composer builder
-COPY --from=composer-builder /app /var/www/html
+COPY . .
 
-# Copy built frontend assets from frontend builder
-COPY --from=frontend-builder /app/public/build /var/www/html/public/build
+# Copy compiled assets from the Node stage
+COPY --from=node-build /app/public/build public/build
 
-# Create storage directories
-RUN mkdir -p \
-    storage/framework/cache/data \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/logs \
-    bootstrap/cache
+# Install PHP dependencies (production only, no dev tools)
+RUN composer install \
+        --no-dev \
+        --no-interaction \
+        --prefer-dist \
+        --optimize-autoloader
 
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+# ── Directory permissions ─────────────────────────────────────────────────────
+RUN mkdir -p storage/framework/{sessions,views,cache} \
+             storage/logs \
+             bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-# Nginx configuration
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
+# ── Nginx configuration ───────────────────────────────────────────────────────
+COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# Supervisord configuration
-COPY docker/supervisord.conf /etc/supervisord.conf
+# ── PHP opcache tuning ────────────────────────────────────────────────────────
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=0" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.validate_timestamps=0" >> /usr/local/etc/php/conf.d/opcache.ini
 
-# Entrypoint script
-COPY docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+# ── Entrypoint ────────────────────────────────────────────────────────────────
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/usr/local/bin/start.sh"]
