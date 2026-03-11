@@ -1,15 +1,10 @@
 #!/bin/sh
 set -e
 
-# ── PHP-FPM: listen on unix socket so Nginx can reach it ─────────────────────
-sed -i 's|listen = 127.0.0.1:9000|listen = /var/run/php-fpm.sock|g' \
-    /usr/local/etc/php-fpm.d/www.conf
-
-sed -i 's|;listen.owner = www-data|listen.owner = www-data|g' \
-    /usr/local/etc/php-fpm.d/www.conf
-
-sed -i 's|;listen.group = www-data|listen.group = www-data|g' \
-    /usr/local/etc/php-fpm.d/www.conf
+# ── PHP-FPM Socket Directory ─────────────────────────────────────────────────
+# Ensure the directory for the socket exists with correct permissions
+mkdir -p /var/run
+chown www-data:www-data /var/run
 
 # ── Run Laravel startup tasks ─────────────────────────────────────────────────
 cd /var/www/html
